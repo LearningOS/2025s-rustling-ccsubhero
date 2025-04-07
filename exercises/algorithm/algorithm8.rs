@@ -2,9 +2,8 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Default)]
 pub struct Queue<T> {
     elements: Vec<T>,
 }
@@ -44,38 +43,54 @@ impl<T> Queue<T> {
     }
 }
 
-impl<T> Default for Queue<T> {
-    fn default() -> Queue<T> {
-        Queue {
-            elements: Vec::new(),
-        }
-    }
+
+pub struct MyStack<T>
+{
+    q1: Queue<T>,
+    q2: Queue<T>,
 }
 
-pub struct myStack<T>
-{
-	//TODO
-	q1:Queue<T>,
-	q2:Queue<T>
-}
-impl<T> myStack<T> {
+impl<T: Clone + Default> MyStack<T> {
     pub fn new() -> Self {
         Self {
-			//TODO
-			q1:Queue::<T>::new(),
-			q2:Queue::<T>::new()
+            q1: Queue::<T>::new(),
+            q2: Queue::<T>::new(),
         }
     }
+
     pub fn push(&mut self, elem: T) {
-        //TODO
+        self.q1.enqueue(elem);
     }
+
     pub fn pop(&mut self) -> Result<T, &str> {
-        //TODO
-		Err("Stack is empty")
+        if self.q1.is_empty() {
+            return Err("Stack is empty");
+        }
+
+        let mut temp = Vec::new();
+        while let Ok(value) = self.q1.dequeue() {
+            temp.push(value);
+        }
+
+        let result = temp.pop().ok_or("Stack is empty");
+
+        for value in temp.into_iter() {
+            self.q1.enqueue(value);
+        }
+
+        result
     }
+
+    pub fn peek(&self) -> Result<&T, &str> {
+        if self.q1.is_empty() {
+            return Err("Stack is empty");
+        }
+
+        self.q1.peek()
+    }
+
     pub fn is_empty(&self) -> bool {
-		//TODO
-        true
+        self.q1.is_empty()
     }
 }
 
@@ -85,7 +100,7 @@ mod tests {
 	
 	#[test]
 	fn test_queue(){
-		let mut s = myStack::<i32>::new();
+        let mut s = MyStack::<i32>::new();
 		assert_eq!(s.pop(), Err("Stack is empty"));
         s.push(1);
         s.push(2);
